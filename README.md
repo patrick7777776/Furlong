@@ -51,7 +51,7 @@ iex(7)> system =
 ...(7)> add_constraint(gte(w1, 10))                     # box 1 width must be at least 10 units
 ```
 
-Let's assume that we have a drawing area of size max_x * max_y units. Our box is to be placed inside this area:
+Let's assume that we have a drawing area of size maxx * maxy units. Our box is to be placed inside this area:
 
 ```
 iex(8)> maxx = make_ref()
