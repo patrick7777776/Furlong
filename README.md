@@ -22,8 +22,7 @@ end
 
 ## Example
 
-A 2d box can be represented by the x-coordinates of its left and right side as well as the y-coordinates of its top and bottom.  For the sake of simplicity, I will omit the y-axis,
-leaving us with two variables, left and right, to represent an example box. Furlong uses Erlang references to identify variables. 
+A 2d box can be represented by the x-coordinates of its left and right side as well as the y-coordinates of its top and bottom.  For the sake of simplicity, I will omit the y-axis, leaving us with two variables, left and right, to represent an example box. Furlong uses Erlang references to identify variables. 
 
 ```
 iex(1)> b1_l = make_ref() # box 1, x-coordinate of left side
@@ -39,8 +38,7 @@ iex(3)> import Furlong.Solver
 iex(4)> system = new()
 ```
 
-We can now add to our system some simple constraints. For example, that our box be at least ten units wide.
-Currently, the constraints need to be specified via the functions in Furlong.Symbolics. In the future, I might add a macro that allows one to write constraints more naturally.
+We can now add to our system some simple constraints. For example, that our box be at least ten units wide.  Currently, the constraints need to be specified via the functions in Furlong.Symbolics. In the future, I might add a macro that allows one to write constraints more naturally.
 
 ```
 iex(5)> import Furlong.Symbolics
@@ -99,7 +97,7 @@ iex(18)> {{value?(system, b1_l), value?(system, b1_r)}, {value?(system, b2_l), v
 {{588.0, 598.0}, {630.0, 640.0}}
 ```
 
-Both boxes have the same width and box 2 is to the right of box 1. If we wanted a more asthetically pleasing positioning, we could for example demand that the width of the drawing area be fully used up by the boxes and the spacer:
+Both boxes have the same width and box 2 is to the right of box 1. If we wanted a more aesthetically pleasing positioning, we could for example demand that the width of the drawing area be fully used up by the boxes and the spacer:
 
 ```
 iex(19)> system = add_constraint(system, eq(add(add(w1, w2), spacer), maxx))
