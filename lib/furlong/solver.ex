@@ -40,7 +40,7 @@ defmodule Furlong.Solver do
   value?(system, xm)
   ```
 
-  For further information, refer to [overconstrained.io](http://overconstrained.io/).
+  For further information, see [overconstrained.io](http://overconstrained.io/).
   """
 
 
@@ -71,12 +71,15 @@ defmodule Furlong.Solver do
   def new(), do: %Solver{}
 
   @doc """
-  Creates a new solver instance by adding a constraint to the given solver instance. Default constraint strength is `:required`.
-  `:required`, `:strong`, `:medium`, `:weak` can be passed as the second argument.
+  Creates a new solver instance by adding a constraint to the given solver instance with `:required` strength.
   """
   def add_constraint(%Solver{} = solver, {:constraint, _, _} = constraint),
     do: add_constraint(solver, constraint, Strength.required())
 
+  @doc """
+  Creates a new solver instance by adding a constraint to the given solver instance. Default constraint strength is `:required`.
+  `:required`, `:strong`, `:medium`, `:weak` can be passed as the second argument.
+  """
   def add_constraint(%Solver{} = solver, {:constraint, _, _} = constraint, :required),
     do: add_constraint(solver, constraint, Strength.required())
 
