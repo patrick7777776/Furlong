@@ -1,4 +1,8 @@
 defmodule Furlong.Symbol do
+  @moduledoc """
+  Markers that are used internally by the Solver.
+  """
+
   def invalid(), do: {:symbol, :invalid, make_ref()}
   def external(), do: {:symbol, :external, make_ref()}
   def slack(), do: {:symbol, :slack, make_ref()}

@@ -1,4 +1,8 @@
 defmodule Furlong.Row do
+  @moduledoc """
+  Row abstraction used internally by the Solver.
+  """
+
   import Furlong.Util, only: [near_zero?: 1]
   alias Furlong.Row
   alias Furlong.Symbol
