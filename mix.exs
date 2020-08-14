@@ -10,7 +10,8 @@ defmodule Furlong.MixProject do
       deps: deps(),
       description: description(),
       package: package(),
-      source_url: "https://github.com/patrick7777776/Furlong"
+      source_url: "https://github.com/patrick7777776/Furlong",
+      docs: [extras: ["intro.md"]]
     ]
   end
 
