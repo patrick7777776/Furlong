@@ -1,7 +1,48 @@
 defmodule Furlong.Solver do
-  # i think kiwi docs say you shouldn't add the same constraint twice -- so the current check can stay as is
-  # https://kiwisolver.readthedocs.io/en/latest/basis/basic_systems.html
-  # Cassowary (and Kiwi) supports to have redundant constraints, meaning that even if having two constraints (x == 10, x + y == 30) is equivalent to a third one (y == 20), all three can be added to the solver without issue.  However, one should not add multiple times the same constraint (in the same form) to the solver. -- kiwijava gets this wrong I think...
+  @moduledoc """
+  Elixir-port of the Kiwisolver; usage example below adapted from [Kiwisolver docs](https://kiwisolver.readthedocs.io/en/latest/basis/basic_systems.html).
+
+  Variables are represented by refs.
+
+  ```
+  # create variables
+  x1 = make_ref()
+  x2 = make_ref()
+  xm = make_ref()
+
+  import Furlong.Solver
+  import Furlong.Constraint
+
+  # create system of in-/equalities
+  system =
+    new()
+    |> add_constraint(constraint(x1 >= 0))
+    |> add_constraint(constraint(x2 <= 100))
+    |> add_constraint(constraint(x2 >= x1 + 10))
+    |> add_constraint(constraint(xm == (x1 + x2) / 2))
+    |> add_constraint(constraint(x1 == 40), :weak)
+    |> add_edit_variable(xm, :strong)
+    |> suggest_value(xm, 60)
+    
+  # query sytem for values assigned to variables
+  value?(system, x1)
+  value?(system, x2)
+  value?(system, xm)
+
+  # update edit variable value
+  system =
+    system |>
+    suggest_value(xm, 90)
+
+  # query values -- as above
+  value?(system, x1)
+  value?(system, x2)
+  value?(system, xm)
+  ```
+
+  For further information, refer to [overconstrained.io](http://overconstrained.io/).
+  """
+
 
   alias Furlong.Row
   alias Furlong.Solver
@@ -24,8 +65,15 @@ defmodule Furlong.Solver do
             artificial: nil,
             strengths: %{}
 
+  @doc """
+  Creates a new, empty, solver instance, i.e. a system of in-/equalities.
+  """
   def new(), do: %Solver{}
 
+  @doc """
+  Creates a new solver instance by adding a constraint to the given solver instance. Default constraint strength is `:required`.
+  `:required`, `:strong`, `:medium`, `:weak` can be passed as the second argument.
+  """
   def add_constraint(%Solver{} = solver, {:constraint, _, _} = constraint),
     do: add_constraint(solver, constraint, Strength.required())
 
@@ -331,6 +379,9 @@ defmodule Furlong.Solver do
     %Solver{solver | objective: Row.insert(objective, symbol, coefficient)}
   end
 
+  @doc """
+  Creates a new solver instance by removing the given constraint from the given solver instance.
+  """
   def remove_constraint(%Solver{} = solver, {:constraint, _, _} = constraint) do
     case Map.get(solver.cns, constraint) do
       nil ->
@@ -437,6 +488,9 @@ defmodule Furlong.Solver do
     first || second || third
   end
 
+  @doc """
+  Returns a new solver instance, where the given variable is editable. Strength can be `:strong`, `:medium`, `:weak`.
+  """
   def add_edit_variable(%Solver{} = solver, var, :strong) when is_reference(var),
     do: add_edit_variable(solver, var, Strength.strong())
 
@@ -468,6 +522,9 @@ defmodule Furlong.Solver do
     }
   end
 
+  @doc """
+  Returns a new solver instance where the given variable is no longer editable.
+  """
   def remove_edit_variable(%Solver{} = solver, var) when is_reference(var) do
     case Map.get(solver.edits, var) do
       nil ->
@@ -479,6 +536,9 @@ defmodule Furlong.Solver do
     end
   end
 
+  @doc """
+  Returns a new solver instance in which the given value is suggested for the given edit variable.
+  """
   def suggest_value(%Solver{} = solver, var, value) when is_reference(var) and is_number(value) do
     case Map.get(solver.edits, var) do
       nil ->
@@ -594,6 +654,9 @@ defmodule Furlong.Solver do
     end
   end
 
+  @doc """
+  Looks up the value of the given variable in the given solver instance. Default value is 0.
+  """
   def value?(%Solver{} = solver, var) when is_reference(var) do
     case Map.get(solver.vars, var) do
       {:symbol, _, _} = symbol ->
