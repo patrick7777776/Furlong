@@ -1,4 +1,18 @@
 defmodule Furlong.Symbolics do
+  @moduledoc """
+  Functions for constructing constraints. 
+
+  ```
+  x = make_ref()
+  y = make_ref()
+
+  constraint = lte(add(x, 2), add(multiply(y, 5), 10)) # x + 2 <= 5 * y + 10
+  ```
+  """
+
+  @doc """
+  Multiplies a variable / term / expression with a constant.
+  """
   def multiply(var, coefficient) when is_reference(var) and is_number(coefficient),
     do: {:term, var, coefficient}
 
@@ -25,6 +39,9 @@ defmodule Furlong.Symbolics do
   def multiply({:expression, [], constant}, {:expression, _, _} = expression),
     do: multiply(expression, constant)
 
+  @doc """
+  Divides a variable / term / expression by a constant.
+  """
   def divide(var, denominator) when is_reference(var) and is_number(denominator),
     do: {:term, var, 1.0 / denominator}
 
@@ -37,10 +54,16 @@ defmodule Furlong.Symbolics do
   def divide({:expression, _, _} = expression, {:expression, [], constant}),
     do: divide(expression, constant)
 
+  @doc """
+  Negates a variable / term / expression.
+  """
   def negate(var) when is_reference(var), do: {:term, var, -1}
   def negate({:term, var, coefficient}), do: {:term, var, -coefficient}
   def negate({:expression, _, _} = expression), do: multiply(expression, -1)
 
+  @doc """
+  Adds two summands, which can be constants, variables, terms, expressions.
+  """
   def add(c1, c2) when is_number(c1) and is_number(c2), do: c1 + c2
 
   def add({:term, _, _} = term, constant) when is_number(constant),
@@ -86,6 +109,9 @@ defmodule Furlong.Symbolics do
   def add(first, second) when is_reference(first) and is_reference(second),
     do: add(first, {:expression, [{:term, second, 1}], 0})
 
+  @doc """
+  Subtraction. Minuend and subtrahend can be constants, variables, terms, expressions.
+  """
   def subtract({:expression, _, _} = expression, constant) when is_number(constant),
     do: add(expression, -constant)
 
@@ -125,8 +151,20 @@ defmodule Furlong.Symbolics do
   def subtract(first, second) when is_reference(first) and is_reference(second),
     do: add(first, negate(second))
 
+  @doc """
+  Creates an equality constraint.
+  """
   def eq(first, second), do: rel(:eq, first, second)
+
+
+  @doc """
+  Creates an inequality constraint, where the first argument is less than or equal to the second argument.
+  """
   def lte(first, second), do: rel(:lte, first, second)
+
+  @doc """
+  Creates an inequality constraint, where the first argument is greater than or equal to the second argument.
+  """
   def gte(first, second), do: rel(:gte, first, second)
 
   defp rel(op, {:expression, _, _} = first, {:expression, _, _} = second),
@@ -174,6 +212,9 @@ defmodule Furlong.Symbolics do
   defp rel(op, const, var) when is_reference(var) and is_number(const),
     do: rel(op, const, {:term, var, 1})
 
+  @doc """
+  Reduces common terms in an expression by summing their coefficients.
+  """
   def reduce({:expression, terms, constant}) do
     reduced_terms =
       terms
